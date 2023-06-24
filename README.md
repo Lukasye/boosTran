@@ -16,12 +16,18 @@ If we want this algorithm to preform well, we need to make sure that the basis i
 4. Increase the expressiveness of the single model.
 
 
+### Bootstrap Sampling
 With the implementation of Boostrap sample, I've got the following result:<br>
 <img src="./img/max_deplth1.png" width="400" height="300"> <br>
 We can see that with `bootstrap_ratio=0.1` got the best result, because the samples a the most uncorrelated, so that the final transformation matrix is 'healthy'. And the idea nunmber of weak learner is around 5 to 15. But the outcome is still not good enough. <br>
+
+### Increase Depth of the Weak lerners
 Then I tried to increse the expressiveness of the weaklearner, hope that will give the result more degrees of freedom. After I increase the `max_depth` of the decision tree to 2, the model preforms better.<br>
 <img src="./img/max_deplth2.png" width="400" height="300"> <br>
 Another interesting fact is that, while the complexity of the model is increasing, the one with higher `boostrap_ratio` tends to overpreform the one with lower. As we can see in the `max_depth3`.<br>
 <img src="./img/max_deplth3.png" width="400" height="300"> <br>
+
+### Interesting
+Something else might be fun: In all the model, the model will aquire the highest perfoemance, is around 15 weaklearner(as we increase the expresiveniss). My assumption: it is related to the number of feature that we are using, as the model depends on the number of features that we use, we can't expect a higher DoF than the number of feature, everything greater than 15, in this case, will be overfitting.
 
 Since in the real application, the dataset supposed to be way larger than the number of weak learners. The matrix that we are going to get at the end should have infinitely many solution. So, a psuedoinverse will be calculated.
