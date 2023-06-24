@@ -53,7 +53,7 @@ And after a few steps of calculation, the program reduced to an EWVD problem. Si
 
 #### Another optimization problem
 Finally it occurrs to me that all weights should be positive in adaboost to ensure the correctness in the weight updating formular. So, I reformulated the optimization problem:
-$$\underset{b, \lambda}{\operatorname{argmin}} [\sum_{n=1}^N (y_n - f(x_n)^Tb)^2 - \sum_{i=1}^K\lambda_ib_i]$$
+$$\underset{b, \lambda}{argmin} [\sum_{n=1}^N (y_n - f(x_n)^Tb)^2 - \sum_{i=1}^K\lambda_ib_i]$$
 After a few step I gave up for I have no clue how to solve it after I wrote down the KKT conditions. So, I used the python optimization package to directly calcalate the nummeric solution.
 
 The result of those attampts shows as follows:<br>
