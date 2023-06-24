@@ -13,10 +13,15 @@ If we want this algorithm to preform well, we need to make sure that the basis i
 1. Boosting sampling of data (or even features)
 2. Postprocessing like Grand-schmidt or PCA (QR decomposition)
 3. Check the rank of the outcome.
+4. Increase the expressiveness of the single model.
 
 
-With the implementation of Boostrap sample, I've got the following result:
-<img src="./img/uncorelated.png" width="400" height="300"> <br>
-We can see that with `bootstrap_ratio=0.1` got the best result, because the samples a the most uncorrelated, so that the final transformation matrix is 'healthy'. And the idea nunmber of weak learner is around 5 to 15. But the outcome is still not good enough. 
+With the implementation of Boostrap sample, I've got the following result:<br>
+<img src="./img/max_deplth1.png" width="400" height="300"> <br>
+We can see that with `bootstrap_ratio=0.1` got the best result, because the samples a the most uncorrelated, so that the final transformation matrix is 'healthy'. And the idea nunmber of weak learner is around 5 to 15. But the outcome is still not good enough. <br>
+Then I tried to increse the expressiveness of the weaklearner, hope that will give the result more degrees of freedom. After I increase the `max_depth` of the decision tree to 2, the model preforms better.<br>
+<img src="./img/max_deplth2.png" width="400" height="300"> <br>
+Another interesting fact is that, while the complexity of the model is increasing, the one with higher `boostrap_ratio` tends to overpreform the one with lower. As we can see in the `max_depth3`.<br>
+<img src="./img/max_deplth3.png" width="400" height="300"> <br>
 
 Since in the real application, the dataset supposed to be way larger than the number of weak learners. The matrix that we are going to get at the end should have infinitely many solution. So, a psuedoinverse will be calculated.

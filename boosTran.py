@@ -8,7 +8,7 @@ import numpy as np
 class boosTran:
     def __init__(self, num_learner: int = 30, bootstrap_ratio = 0.9) -> None:
         self.num_learner = num_learner
-        self.tree_kwargs = dict(criterion="entropy", class_weight="balanced", max_depth=1)
+        self.tree_kwargs = dict(criterion="entropy", class_weight="balanced", max_depth=3)
         self.bootstrap_ratio = bootstrap_ratio
     
     
@@ -49,6 +49,15 @@ class boosTran:
         result = (np.sign(result - 0.5) + 1) / 2
         return result.astype(int)
 
+def benchmark(num_learner, bootstrap_ratio, X_train, y_train, X_test, y_test, epoche: int = 10) -> float:
+    result = []
+    for _ in range(epoche):
+        bs = boosTran(num_learner, bootstrap_ratio)
+        bs.fit(X_train, y_train)
+        yhat = bs.prediction(X_test)
+        asd = yhat == y_test
+        result.append(np.sum(asd) / len(yhat))
+    return np.mean(result)
 
 def demo():
     # Prepare dataset
@@ -70,16 +79,15 @@ def main():
     x = range(1, 80, 5)
     ratio = [.1, .2, .3, .4, .5, .6, .7, .8, .9, 1.]
     for r in tqdm(ratio):
-        result = np.zeros(len(x))
+        result = []
         # averaging result
-        for _ in range(average):
-            for idx, i in enumerate(x):
-                bs = boosTran(num_learner=i, bootstrap_ratio=r)
-                bs.fit(X_train, y_train)
-                yhat = bs.prediction(X_test)
-                asd = yhat == y_test
-                result[idx] += np.sum(asd) / len(yhat)
-        result /= average
+        for idx, i in enumerate(x):
+            # bs = boosTran(num_learner=i, bootstrap_ratio=r)
+            # bs.fit(X_train, y_train)
+            # yhat = bs.prediction(X_test)
+            # asd = yhat == y_test
+            # result[idx] += np.sum(asd) / len(yhat)
+            result.append(benchmark(i, r, X_train, y_train, X_test, y_test, 10))
         plt.plot(x, result)
     plt.legend(ratio)
     plt.show()
