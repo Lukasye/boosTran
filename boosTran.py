@@ -4,6 +4,7 @@ from dataUtils import load_dataset
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import minimize
+from sklearn.metrics import precision_recall_fscore_support
 
 # For linear Regression
 from sklearn.metrics import r2_score
@@ -83,20 +84,21 @@ def benchmark(bootstrap_ratio, max_depth, X_train, y_train, X_test, y_test,
         bs.tree_kwargs['max_depth'] = max_depth
         bs.fit(X_train, y_train)
         yhat = bs.prediction(X_test)
-        asd = yhat == y_test
-        result.append(np.sum(asd) / len(yhat))
+        result.append(f1scaore(y_test, yhat))
     return np.mean(result)
+
+def f1scaore(ytest, yhat):
+    return precision_recall_fscore_support(ytest, yhat, average='micro')[2]
 
 def demo():
     # Prepare dataset
     X_train, X_test, y_train, y_test = load_dataset("df_arabica_clean.csv")
     # Initialize 
-    bs = boosTran(method='proj')
+    bs = boosTran(method='opt')
     bs.fit(X_train, y_train)
     print(bs.basis)
     yhat = bs.prediction(X_test)
-    asd = yhat == y_test
-    print(np.sum(asd) / len(yhat))
+    print('f1score: ', f1scaore(y_test, yhat))
 
 def compare_ratio_numlearners():
     # Prepare dataset
@@ -166,5 +168,6 @@ def compare_methods():
 if __name__ == "__main__":
     # main()
     # demo()
-    # linear_regression()
     compare_methods()
+    # linear_regression()
+    # compare_methods()
