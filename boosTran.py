@@ -32,18 +32,17 @@ class boosTran:
         P = np.empty((length_sample, self.num_learner))
         sample_index = np.arange(length_sample)
         bootstrap_length = int(self.bootstrap_ratio * length_sample)
-        weight = np.ones(bootstrap_length) / bootstrap_length
+        weight = np.ones(length_sample) / length_sample
         # Main loop
         for i in range(self.num_learner):
             np.random.shuffle(sample_index)
-            # weight = np.random.rand(length_sample)
-            # weight /= sum(weight)
-            tmp_x = X[sample_index[:bootstrap_length], :]
-            tmp_y = y[sample_index[:bootstrap_length]]
+            tmp_index = sample_index[:bootstrap_length]
+            tmp_x = X[tmp_index, :]
+            tmp_y = y[tmp_index]
             tmp_tree = self.tree[i]
-            tmp_tree.fit(tmp_x, tmp_y, sample_weight= weight)
+            tmp_tree.fit(tmp_x, tmp_y, sample_weight= weight[tmp_index])
             y_hat = tmp_tree.predict(X)
-            weight *= np.exp((y != y_hat)[sample_index[:bootstrap_length]])
+            weight *= np.exp((y != y_hat))
             weight /= np.sum(weight)
             P[:, i] = y_hat
         # np.savetxt('matrixTemplate.csv', P, delimiter=',')
@@ -77,10 +76,11 @@ class boosTran:
 
 def benchmark(bootstrap_ratio, max_depth, X_train, y_train, X_test, y_test, 
               epoche: int = 10,
-              method: str = 'pinv') -> float:
+              method: str = 'pinv', 
+              importance: float = 0.5) -> float:
     result = []
     for _ in range(epoche):
-        bs = boosTran(bootstrap_ratio, method=method)
+        bs = boosTran(bootstrap_ratio, method=method, importance=importance)
         bs.tree_kwargs['max_depth'] = max_depth
         bs.fit(X_train, y_train)
         yhat = bs.prediction(X_test)
@@ -163,11 +163,28 @@ def compare_methods():
     plt.show()
 
 
+def compare_importance_ratio():
+    X_train, X_test, y_train, y_test = load_dataset("df_arabica_clean.csv")
+    importance = [.1, .5, 1, 1.5, 2., 4.]
+    ratio = [.1, .2, .3, .4, .5, .6, .7, .8, .9, 1.]
+    
+    plt.figure()
+    for i in importance:
+        result = []
+        for r in tqdm(ratio):
+            result.append(benchmark(r, 4, X_train, y_train, X_test, y_test, 10, importance=i, method='opt'))
+        plt.plot(ratio, result)
+    plt.legend(importance)
+    plt.show()
+
+
+
 
 
 if __name__ == "__main__":
     # main()
-    # demo()
-    compare_methods()
+    demo()
+    # compare_methods()
+    # compare_importance_ratio()
     # linear_regression()
     # compare_methods()
