@@ -1,5 +1,7 @@
 from tqdm import tqdm
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import SGDClassifier
 from dataUtils import load_dataset
 import matplotlib.pyplot as plt
 import numpy as np
@@ -77,10 +79,10 @@ class boosTran:
 def benchmark(bootstrap_ratio, max_depth, X_train, y_train, X_test, y_test, 
               epoche: int = 10,
               method: str = 'pinv', 
-              importance: float = 0.5) -> float:
+              ) -> float:
     result = []
     for _ in range(epoche):
-        bs = boosTran(bootstrap_ratio, method=method, importance=importance)
+        bs = boosTran(bootstrap_ratio, method=method)
         bs.tree_kwargs['max_depth'] = max_depth
         bs.fit(X_train, y_train)
         yhat = bs.prediction(X_test)
@@ -90,15 +92,14 @@ def benchmark(bootstrap_ratio, max_depth, X_train, y_train, X_test, y_test,
 def f1scaore(ytest, yhat):
     return precision_recall_fscore_support(ytest, yhat, average='micro')[2]
 
-def demo():
-    # Prepare dataset
-    X_train, X_test, y_train, y_test = load_dataset("df_arabica_clean.csv")
+def single_run(X_train, X_test, y_train, y_test):
     # Initialize 
-    bs = boosTran(method='opt')
+    bs = boosTran(method='opt', bootstrap_ratio=0.1)
     bs.fit(X_train, y_train)
-    print(bs.basis)
+    # print(bs.basis)
     yhat = bs.prediction(X_test)
-    print('f1score: ', f1scaore(y_test, yhat))
+    return f1scaore(y_test, yhat)
+    # print('f1score: ', f1scaore(y_test, yhat))
 
 def compare_ratio_numlearners():
     # Prepare dataset
@@ -178,6 +179,37 @@ def compare_importance_ratio():
     plt.show()
 
 
+def demo():
+    # Prepare dataset
+    X_train, X_test, y_train, y_test = load_dataset("df_arabica_clean.csv")
+    duration = range(100)
+    label = ['boosTran', 'SVM', 'RF']
+    bt = []
+    svms = []
+    rfs = []
+    for i in duration:
+        bt.append(single_run(X_train, X_test, y_train, y_test))
+        svms.append(svm(X_train, X_test, y_train, y_test))
+        rfs.append(random_forest(X_train, X_test, y_train, y_test))
+    plt.figure()
+    plt.plot(bt)
+    plt.plot(svms)
+    plt.plot(rfs)
+    plt.legend(label)
+    plt.show()
+
+
+def svm(X_train, X_test, y_train, y_test):
+    svm = SGDClassifier(loss='hinge')
+    svm.fit(X_train, y_train)
+    y_pred = svm.predict(X_test)
+    return f1scaore(y_test, y_pred)
+
+def random_forest(X_train, X_test, y_train, y_test):
+    clf = RandomForestClassifier(max_depth=2, random_state=0)
+    clf.fit(X_train, y_train)
+    y_pred = clf.predict(X_test)
+    return f1scaore(y_test, y_pred)
 
 
 

@@ -63,3 +63,5 @@ The SVD preforms bad, because my calculations are wrong, other methods haa almos
 
 ## Benchmark and Conclution
 
+<img src="./img/benchmark.png" width="400" height="300"> <br>
+No time to dig deeper in this thema. The benchmark might be wrong. But it is really an interesting direction. I'll come back later when there is stll time for that.
